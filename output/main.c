@@ -4,32 +4,31 @@
 #include <windows.h>
 #include <conio.h>
 
-// Funções do menu e do jogo
+// Funções
 void showTitle();
 void generateMap();
 void generateMapLayout(char map[10][10], int width, int height);
-void drawMap(char map[10][10], int width, int height);
-void movePlayer(char map[10][10], char input);
+void drawMap(char map[10][20], int width, int height);
+void movePlayer(char map[10][20], char input, int width, int height);
 void moveEnemy(char map[10][10], int width, int height);
 void villageLevel();
 void levelOne();
 void levelTwo();
 void levelThree();
+void interactWithNPC();
+
 
 // Variáveis globais
 int selection;
 int enemyX, enemyY;
 int playerX, playerY;
-int levelOneX, levelOneY;
-int levelTwoX, levelTwoY;
-int levelThreeX, levelThreeY;
+int hasKey = 0;
 
-// Título do jogo
 void showTitle()
 {
     system("cls");
     printf("\n\n\n\n\n\n\n\n");
-    printf("\t\t\t\t\t\t ▄████████    ▄████████    ▄████████  ▄█     █▄   ▄█             ▄████████ ▀████    ▐████▀    ▄████████ \n");
+    printf("\t\t\t\t\t\t ▄████████    ▄████████    ▄████████  ▄█      █▄   ▄█             ▄████████ ▀████    ▐████▀    ▄████████ \n");
     printf("\t\t\t\t\t\t ███    ███   ███    ███   ███    ███ ███     ███ ███            ███    ███   ███▌   ████▀    ███    ███\n");
     printf("\t\t\t\t\t\t ███    █▀    ███    ███   ███    ███ ███     ███ ███            ███    █▀     ███  ▐███      ███    █▀ \n");
     printf("\t\t\t\t\t\t ███         ▄███▄▄▄▄██▀   ███    ███ ███     ███ ███           ▄███▄▄▄        ▀███▄███▀     ▄███▄▄▄    \n");
@@ -41,7 +40,6 @@ void showTitle()
     printf("\n\n\n\n\n\n\n\n");
 }
 
-// Cria o layout do mapa com paredes nas bordas
 void generateMapLayout(char map[10][10], int width, int height)
 {
     playerX = 1;
@@ -61,33 +59,85 @@ void generateMapLayout(char map[10][10], int width, int height)
     }
 }
 
-// Mostra o mapa na tela
-void drawMap(char map[10][10], int width, int height)
+void drawMap(char map[10][20], int width, int height)
 {
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            printf("%c ", map[i][j]);
+            printf("%c", map[i][j]);
         }
         printf("\n");
     }
 }
 
-// Movimento do jogador com WASD
-void movePlayer(char map[10][10], char input)
+void movePlayer(char map[10][20], char input, int width, int height)
 {
-    if ((input == 'w' || input == 'W') && map[playerY - 1][playerX] != '*')
-        playerY--;
-    else if ((input == 's' || input == 'S') && map[playerY + 1][playerX] != '*')
-        playerY++;
-    else if ((input == 'a' || input == 'A') && map[playerY][playerX - 1] != '*')
-        playerX--;
-    else if ((input == 'd' || input == 'D') && map[playerY][playerX + 1] != '*')
-        playerX++;
+    int newX = playerX, newY = playerY;
+
+    if ((input == 'w' || input == 'W')) newY--;
+    else if ((input == 's' || input == 'S')) newY++;
+    else if ((input == 'a' || input == 'A')) newX--;
+    else if ((input == 'd' || input == 'D')) newX++;
+    else if (input == 'i' || input == 'I') {
+        interactWithNPC(map, width, height);
+        return;
+    }
+
+    char nextTile = map[newY][newX];
+
+    if (nextTile == '*' || nextTile == 'P' || (nextTile == 'D' && hasKey == 0) || (nextTile == '=' && hasKey == 0))
+        return;
+
+    if (nextTile == '@') {
+        hasKey = 1;
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                if (map[i][j] == 'D') {
+                    map[i][j] = '=';
+                }
+            }
+        }
+    }
+
+    if (nextTile == '=' && hasKey == 1) {
+        system("cls");
+        printf("\nVocê usou a chave e entrou na próxima fase!\n");
+        Sleep(1500);
+        hasKey = 0;
+        levelOne();
+        return;
+    }
+
+    playerX = newX;
+    playerY = newY;
 }
 
-// Movimento aleatório do inimigo
+void interactWithNPC(char map[10][20], int width, int height) {
+    int dx[] = { 0,  0, -1, 1 };
+    int dy[] = { -1, 1,  0, 0 };
+
+    for (int i = 0; i < 4; i++) {
+        int nx = playerX + dx[i];
+        int ny = playerY + dy[i];
+
+        if (nx >= 0 && nx < width && ny >= 0 && ny < height && map[ny][nx] == 'P') {
+            system("cls");
+            drawMap(map, width, height);
+            printf("\nVocê fala com o NPC:\n");
+            printf("\"Olá, viajante! Boa sorte na sua jornada.\"\n");
+            Sleep(1500);
+            return;
+        }
+    }
+
+    system("cls");
+    drawMap(map, width, height);
+    printf("\nNão há nenhum NPC por perto para interagir.\n");
+    Sleep(1000);
+}
+
+
 void moveEnemy(char map[10][10], int width, int height)
 {
     int dx = -1 + rand() % 3;
@@ -104,7 +154,6 @@ void moveEnemy(char map[10][10], int width, int height)
     }
 }
 
-// Fase com inimigo
 void generateMap()
 {
     system("cls");
@@ -120,13 +169,13 @@ void generateMap()
 
     while (1)
     {
-        drawMap(map, width, height);
+        drawMap((char (*)[20])map, width, height);
         inputKey = getch();
 
         map[playerY][playerX] = ' ';
         map[enemyY][enemyX] = ' ';
 
-        movePlayer(map, inputKey);
+        movePlayer((char (*)[20])map, inputKey, width, height);
         moveEnemy(map, width, height);
 
         map[playerY][playerX] = '&';
@@ -136,27 +185,37 @@ void generateMap()
     }
 }
 
-// Fase da vila (sem inimigo)
 void villageLevel()
 {
     system("cls");
     srand(time(NULL));
 
-    char map[10][10];
-    char inputKey;
-    int width = 10, height = 10;
+    char map[10][20];
+    char* layout[10] = {
+        "**********D*********",
+        "*&                 *",
+        "*                  *",
+        "*  ***       ***   *",
+        "*                  *",
+        "*            ***   *",
+        "*  P             @ *",
+        "*  ***       ***   *",
+        "*  P            P  *",
+        "********************"
+    };
 
-    playerX = 1;
-    playerY = height - 2;
+    int width = 20, height = 10;
+    char inputKey;
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            if (i == 0 || j == 0 || i == height - 1 || j == width - 1)
-                map[i][j] = '*';
-            else
-                map[i][j] = ' ';
+            map[i][j] = layout[i][j];
+            if (map[i][j] == '&') {
+                playerX = j;
+                playerY = i;
+            }
         }
     }
 
@@ -166,12 +225,56 @@ void villageLevel()
         drawMap(map, width, height);
         inputKey = getch();
         map[playerY][playerX] = ' ';
-        movePlayer(map, inputKey);
+        movePlayer(map, inputKey, width, height);
         system("cls");
     }
 }
 
-// Menu principal
+void levelOne()
+{
+    system("cls");
+    srand(time(NULL));
+
+    char map[10][20];
+    char* layout[10] = {
+        "********************",
+        "* @                *",
+        "*                  *",
+        "*                  *",
+        "*                  *",
+        "*                  D",
+        "*                  *",
+        "*                  *",
+        "*         &        *",
+        "********************"
+    };
+
+    int width = 20, height = 10;
+    char inputKey;
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            map[i][j] = layout[i][j];
+            if (map[i][j] == '&') {
+                playerX = j;
+                playerY = i;
+            }
+        }
+    }
+
+    while (1)
+    {
+        map[playerY][playerX] = '&';
+        drawMap(map, width, height);
+        inputKey = getch();
+        map[playerY][playerX] = ' ';
+        movePlayer(map, inputKey, width, height);
+        system("cls");
+    }
+}
+
 int main()
 {
     int loopMainMenu = 1;
@@ -215,14 +318,12 @@ int main()
             break;
 
         case 4:
-            printf("\n\n\t\t\t\t\t\t\t\t\t\t\t\t  ");
-            printf("Goodbye!\n");
+            printf("\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Goodbye!\n");
             loopMainMenu = 0;
             break;
 
         default:
-            printf("\n\n\t\t\t\t\t\t\t\t\t\t\t\t  ");
-            printf("Opcao invalida.\n");
+            printf("\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Opcao invalida.\n");
             printf("\n\n\t\t\t\t\t\t\t\t\t\t\t\t  ");
             system("pause");
         }
