@@ -8,6 +8,9 @@ void showTitle();
 void drawMap(char map[40][40], int width, int height);
 void movePlayer(char map[40][40], char input, int width, int height);
 void interactWithNPC(char map[40][40], int width, int height);
+void drawMap(char map[40][40], int width, int height);
+void movePlayer(char map[40][40], char input, int width, int height);
+void interactWithNPC(char map[40][40], int width, int height);
 void villageLevel();
 void levelOne();
 void levelTwo();
@@ -317,6 +320,8 @@ void interactWithNPC(char map[40][40], int width, int height)
 void villageLevel()
 {
     system("cls");
+
+    currentLevel = 0;
 
     currentLevel = 0;
 
