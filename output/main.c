@@ -150,26 +150,58 @@ void movePlayer(char map[40][40], char input, int width, int height)
     if (nextTile == '=' && hasKey == 1)
     {
         system("cls");
-        printf("\nVoce usou a chave e entrou na proxima fase!\n");
-        Sleep(1500);
         hasKey = 0;
         currentLevel++;
+
         if (currentLevel == 1)
+        {
+            printf("\nVoce usou a chave e entrou na Fase 1!\n");
+            Sleep(1500);
             levelOne();
+        }
         else if (currentLevel == 2)
+        {
+            printf("\nVoce usou a chave e entrou na Fase 2!\n");
+            Sleep(1500);
             levelTwo();
+        }
         else if (currentLevel == 3)
+        {
+            printf("\nVoce usou a chave e entrou na Fase Final!\n");
+            Sleep(1500);
             levelThree();
+        }
+        else
+        {
+            printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Winner!!!\n");
+            system("cls");
+            main(); // Volta ao menu principal
+        }
+
         return;
     }
 
-    if (nextTile == 'O')
-    { // botao
-        printf("\nVoce pressionou o botao!\n");
-        Sleep(1000);
+   if (nextTile == 'O')
+{
+    printf("\nVoce pressionou o botao! Um caminho foi aberto!\n");
+    Sleep(1000);
 
-        map[5][5] = ' ';
+    // Remove espinhos se quiser
+    for (int i = 1; i <= 3; i++) {
+        for (int j = 0; j < width; j++) {
+            if (map[i][j] == '#') {
+                map[i][j] = ' ';
+            }
+        }
     }
+
+    // Libera o teleporte inferior (em [25][26]), removendo a parede acima dele
+    map[24][17] = ' ';
+
+    // Remove o botão (opcional)
+    map[playerY][playerX] = ' ';
+}
+
 
     if (nextTile == '#')
     {
@@ -178,8 +210,10 @@ void movePlayer(char map[40][40], char input, int width, int height)
         Sleep(1500);
         if (initialHealth < 1)
         {
+           system("cls");
+            printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Over!!!\n");
+            system("pause");
             main();
-            return;
         }
     }
 
@@ -243,16 +277,26 @@ void monsterDrunk(char map[40][40], int width, int height)
     map[monster1Y][monster1X] = 'X';
 
     // Verifica colisão com o jogador
-    if (monster1X == playerX && monster1Y == playerY)
+   if (monster1X == playerX && monster1Y == playerY)
     {
-        printf("\nVocê foi pego pelo monstro!\n");
+        initialHealth--;
+        printf("\nVocê foi pego pelo monstro!Voce ainda tem %d vidas...\n", initialHealth);
         Sleep(1500);
-        if (currentLevel == 1)
+        if (initialHealth < 1)
+        {
+           system("cls");
+            printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Over!!!\n");
+            system("pause");
+            main();
+        } else { 
+            if (currentLevel == 1)
             levelOne();
-        else if (currentLevel == 2)
+            else if (currentLevel == 2)
             levelTwo();
-        else if (currentLevel == 3)
+            else if (currentLevel == 3)
             levelThree();
+            
+        }
     }
 }
 
@@ -301,12 +345,32 @@ void interactWithNPC(char map[40][40], int width, int height)
     for (int i = 0; i < 4; i++)
     {
         int nx = playerX + dx[i], ny = playerY + dy[i];
+
         if (nx >= 0 && nx < width && ny >= 0 && ny < height && map[ny][nx] == 'P')
         {
             system("cls");
             drawMap(map, width, height);
-            printf("\nVocê fala com o NPC:\n\"Olá, viajante! Boa sorte na sua jornada.\"\n");
-            Sleep(1500);
+
+            // Verifica a posição do NPC
+            if (ny == 6 && nx == 3) // NPC da linha 6, coluna 4 (índice base 0)
+            {
+                printf("\nNPC 1: \"O mundo lá fora é perigoso. Leve essa chave e vá com cuidado.\"\n");
+            }
+            else if (ny == 8 && nx == 3) // NPC da linha 8, coluna 4
+            {
+                printf("\nNPC 2: \"Ouvi dizer que há monstros nas cavernas ao sul.\"\n");
+            }
+            else if (ny == 8 && nx == 17) // NPC da linha 8, coluna 18
+            {
+                printf("\nNPC 3: \"Se encontrar um botão, pressione. Ele pode revelar passagens escondidas.\"\n");
+            }
+            else
+            {
+                // Caso genérico (opcional)
+                printf("\nNPC: \"Olá, viajante! Boa sorte na sua jornada.\"\n");
+            }
+
+            Sleep(2000);
             return;
         }
     }
@@ -414,24 +478,24 @@ void levelTwo()
     char map[40][40];
     char *layout[40] = {
         "********************         ",
-        "*@                >*         ",
-        "*   ***********    *         ",
-        "*         *        *         ",
-        "*   **##  *   **** *         ",
-        "*   *     *        *         ",
-        "*   *  #*****  *****         ",
-        "*   *        *     *         ",
-        "*   *****    *******         ",
-        "*   *## *    *    **         ",
-        "*   *   *    *    **         ",
-        "*   *   *    *    **         ",
-        "*   *   *    *    **         ",
-        "*   *   *    *    **         ",
-        "*   *   *    *    **         ",
-        "*   *   *          *         ",
-        "*###############X  *         ",
-        "*&                D*         ",
-        "*       O         >*         ",
+        "*@        #       >*         ",
+        "*         #        *         ",
+        "*         #        *         ",
+        "*##################*         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*  O               *         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*         X        *         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*                  *         ",
+        "*&                 D         ",
+        "*                 >*         ",
         "********************         "
 
     };
@@ -497,55 +561,58 @@ void levelThree()
 {
     system("cls");
 
+    teleportAX = teleportAY = -1;
+    teleportBX = teleportBY = -1;
+
     char map[40][40];
     char *layout[40] = {
         "***************************************",
-        "*@                                    *",
-        "*   **************     ************   *",
-        "*   *            *     *          *   *",
-        "*   *   ******** *     *  ****    *   *",
-        "*   *   *      * *     *  *  *    *   *",
-        "*   *   *  **  * ***** *  *  *    *   *",
-        "*   *   ****   ***** * *******    *   *",
-        "*   *                *            *   *",
-        "*   ******************   **********   *",
         "*                                     *",
-        "*   **********    **************      *",
-        "*   *                                 *",
-        "*   *   ****************************  *",
-        "*   *                                 *",
-        "*   ********************************  *",
-        "*       X                             *",
-        "*   ********************************  *",
-        "*   *                                 *",
-        "*   *   ****************************  *",
-        "*   *                                 *",
-        "*   ********************************  *",
+        "*   >                                 *",
         "*                                     *",
-        "*   *******************************   *",
-        "*   *                             *   *",
-        "*   *   ***********************   *   *",
-        "*   *   *                     *   *   *",
-        "*   *   *   ***************   *   *   *",
-        "*   *   *   *             *   *   *   *",
-        "*   *   *   *   *******   *   *   *   *",
-        "*   *   *   *   *     *   *   *   *   *",
-        "*   *   *   *   *     *   *   *   *   *",
-        "*   *   *   *   *******   *   *   *   *",
-        "*   *   *   *             *   *   *   *",
-        "*   *   *   ***************   *   *   *",
-        "*   *                             *   *",
-        "*   *******************************   *",
-        "*                          V          *",
-        "*&                                    D",
-        "***************************************"};
+        "*                           ##########*",
+        "*                 X                   *",
+        "*                           #     ####*",
+        "*                           #     #   *",
+        "*                           #        @*",
+        "***************************************",
+        "*                   V        #   #    *",
+        "*                        #  #       # D",
+        "*                              #      *",
+        "********                     #      # *",
+        "*                               #     *",
+        "*                                     *",
+        "*                   #############     *",
+        "*                                     *",
+        "*            ####                     *",
+        "*                   ###############   *",
+        "*                                     *",
+        "***********                           *",
+        "*                     *****************",
+        "*                                     *",
+        "*              *******                *",
+        "*              *     *                *",
+        "*              *  >  *                *",
+        "*              *     *                *",
+        "*              **************         *",
+        "*                                     *",
+        "*                   *                 *",
+        "*########           *                 *",
+        "*                ****                 *",
+        "*                                     *",
+        "*            O                        *",
+        "*************************             *",
+        "*                                     *",
+        "*                                     *",
+        "*&                                    *",
+        "***************************************"
+    };
 
     int width = 40, height = 40;
     char inputKey;
 
     // Copia o layout para o mapa real
-    for (int i = 0; i < height; i++)
-    {
+   for (int i = 0; i < height; i++)
         for (int j = 0; j < width; j++)
         {
             map[i][j] = layout[i][j];
@@ -564,23 +631,53 @@ void levelThree()
                 monster2X = j;
                 monster2Y = i;
             }
+            if (map[i][j] == '>')
+            {
+                if (teleportAX == -1)
+                {
+                    teleportAX = j;
+                    teleportAY = i;
+                }
+                else
+                {
+                    teleportBX = j;
+                    teleportBY = i;
+                }
+            }
         }
-    }
+
 
     while (1)
-    {
-        map[playerY][playerX] = '&';
-        map[monster1Y][monster1X] = 'X'; // desenha o monstro
-        map[monster2Y][monster2X] = 'V'; // desenha o monstro
-        drawMap(map, width, height);
-        inputKey = getch();
+{
+    // 1. Restaura o teletransporte ou espaço onde o jogador estava
+    if (playerX == teleportAX && playerY == teleportAY)
+        map[playerY][playerX] = '>';
+    else if (playerX == teleportBX && playerY == teleportBY)
+        map[playerY][playerX] = '>';
+    else
         map[playerY][playerX] = ' ';
-        map[monster1Y][monster1X] = ' '; // limpa monstro anterior
-        map[monster2Y][monster2X] = ' '; // limpa monstro anterior
-        movePlayer(map, inputKey, width, height);
-        monsterDrunk(map, width, height); // monstro bêbado
-        monsterIq(map, width, height);    // espertalhâo
 
-        system("cls");
-    }
+    // 2. Limpa monstros antigos
+    map[monster1Y][monster1X] = underMonster1;
+    map[monster2Y][monster2X] = underMonster2;
+
+    // 3. Captura entrada
+    inputKey = getch();
+
+    // 4. Move jogador
+    movePlayer(map, inputKey, width, height);
+
+    // 5. Move monstros
+    monsterDrunk(map, width, height);
+    monsterIq(map, width, height);
+
+    // 6. Desenha entidades nas novas posições
+    map[playerY][playerX] = '&';
+    map[monster1Y][monster1X] = 'X';
+    map[monster2Y][monster2X] = 'V';
+
+    // 7. Mostra o mapa
+    system("cls");
+    drawMap(map, width, height);
+}
 }
