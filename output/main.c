@@ -33,55 +33,55 @@ int initialHealth = 3;
 
 int main()
 {
-    int loopMainMenu = 1;
-    srand(time(NULL));
+    int loopMainMenu = 1; // Controla o loop do menu principal
+    srand(time(NULL));    // Inicializa a semente do gerador de números aleatórios
 
     do
     {
-        SetConsoleOutputCP(65001);
-        showTitle();
+        SetConsoleOutputCP(65001); // Configura o terminal para UTF-8
+        showTitle();               // Exibe o título do jogo
 
+        // Menu Principal
         printf("\t\t\t\t\t\t\t\t\t\t\t\t  [1] INICIAR\n");
         printf("\t\t\t\t\t\t\t\t\t\t\t\t  [2] CONTROLES\n");
         printf("\t\t\t\t\t\t\t\t\t\t\t\t  [3] CREDITOS\n");
         printf("\t\t\t\t\t\t\t\t\t\t\t\t  [4] SAIR\n");
         printf("\t\t\t\t\t\t\t\t\t\t\t\t  Escolha uma opcao: ");
-        scanf("%d", &selection);
+        scanf("%d", &selection); // Lê a opção do usuário
 
         switch (selection)
         {
-        case 1:
-            currentLevel = 0;
-            villageLevel();
+        case 1:               // Iniciar jogo
+            currentLevel = 0; // Reinicia para a vila
+            levelThree();     // Carrega a fase da vila
             break;
-        case 2:
+        case 2: // Mostrar controles
             showTitle();
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  W - cima\n");
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  A - esquerda\n");
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  S - baixo\n");
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  D - direita\n");
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  I - interagir com NPC ou objeto especial\n");
-            system("pause");
+            system("pause"); // Pausa para o usuário ler
             break;
-        case 3:
+        case 3: // Créditos
             showTitle();
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  CREDITOS\n\n");
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  João Paulo Koury de Mendonça\n");
             printf("\t\t\t\t\t\t\t\t\t\t\t\t  Pedro Antônio de Souza Fernandes Filho\n");
             system("pause");
             break;
-        case 4:
+        case 4: // Sair
             printf("\n  Goodbye!\n");
-            loopMainMenu = 0;
+            loopMainMenu = 0; // Encerra o loop
             break;
-        default:
+        default: // Opção inválida
             printf("\n  Opcao invalida.\n");
             system("pause");
         }
+    } while (loopMainMenu); // Repete até o usuário sair
 
-    } while (loopMainMenu);
-
-    return 0;
+    return 0; // Fim do programa
 }
 
 void showTitle()
@@ -103,19 +103,20 @@ void showTitle()
 void drawMap(char map[40][40], int width, int height)
 {
     for (int i = 0; i < height; i++)
-    {
+    { // Loop pelas linhas
         for (int j = 0; j < width; j++)
-        {
-            printf("%c", map[i][j]);
+        {                            // Loop pelas colunas
+            printf("%c", map[i][j]); // Imprime cada caractere do mapa
         }
-        printf("\n");
+        printf("\n"); // Quebra de linha após cada linha do mapa
     }
 }
 
 void movePlayer(char map[40][40], char input, int width, int height)
 {
-    int newX = playerX, newY = playerY;
+    int newX = playerX, newY = playerY; // Calcula nova posição
 
+    // Atualiza coordenadas conforme a tecla pressionada
     if (input == 'w' || input == 'W')
         newY--;
     else if (input == 's' || input == 'S')
@@ -125,34 +126,36 @@ void movePlayer(char map[40][40], char input, int width, int height)
     else if (input == 'd' || input == 'D')
         newX++;
     else if (input == 'i' || input == 'I')
-    {
+    { // Interação com NPC
         interactWithNPC(map, width, height);
         return;
     }
 
-    char nextTile = map[newY][newX];
+    char nextTile = map[newY][newX]; // Verifica o próximo tile
 
-    // Não anda em parede, NPC ou porta fechada
+    // Colisões com paredes, NPCs ou portas fechadas
     if (nextTile == '*' || nextTile == 'P' || (nextTile == 'D' && hasKey == 0) || (nextTile == '=' && hasKey == 0))
         return;
 
-    // Pegou chave
+    // Coleta de chave
     if (nextTile == '@')
     {
-        hasKey = 1;
+        hasKey = 1; // Ativa a chave
+        // Substitui portas fechadas por abertas
         for (int i = 0; i < height; i++)
             for (int j = 0; j < width; j++)
                 if (map[i][j] == 'D')
                     map[i][j] = '=';
     }
 
-    // Avançar de fase
+    // Passar pela porta com chave
     if (nextTile == '=' && hasKey == 1)
     {
         system("cls");
-        hasKey = 0;
-        currentLevel++;
+        hasKey = 0;     // Reseta a chave
+        currentLevel++; // Avança para a próxima fase
 
+        // Carrega a fase correspondente
         if (currentLevel == 1)
         {
             printf("\nVoce usou a chave e entrou na Fase 1!\n");
@@ -172,59 +175,56 @@ void movePlayer(char map[40][40], char input, int width, int height)
             levelThree();
         }
         else
-        {
-            printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Winner!!!\n");
+        { // Vitória
             system("cls");
-            main(); // Volta ao menu principal
+            printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Winner!!!\n");
+            system("pause");
+            main(); // Volta ao menu
         }
-
         return;
     }
 
-   if (nextTile == 'O')
-{
-    printf("\nVoce pressionou o botao! Um caminho foi aberto!\n");
-    Sleep(1000);
-
-    // Remove espinhos se quiser
-    for (int i = 1; i <= 3; i++) {
-        for (int j = 0; j < width; j++) {
-            if (map[i][j] == '#') {
-                map[i][j] = ' ';
+    // Ativação de botão (remove espinhos)
+    if (nextTile == 'O')
+    {
+        printf("\nVoce pressionou o botão! Um caminho foi aberto!\n");
+        Sleep(1000);
+        // Remove espinhos
+        for (int i = 1; i <= 3; i++)
+        {
+            for (int j = 0; j < width; j++)
+            {
+                if (map[i][j] == '#')
+                    map[i][j] = ' ';
             }
         }
+        map[24][17] = ' ';           // Abre passagem
+        map[playerY][playerX] = ' '; // Remove o botão
     }
 
-    // Libera o teleporte inferior (em [25][26]), removendo a parede acima dele
-    map[24][17] = ' ';
-
-    // Remove o botão (opcional)
-    map[playerY][playerX] = ' ';
-}
-
-
+    // Dano por espinhos
     if (nextTile == '#')
     {
-        initialHealth--;
+        initialHealth--; // Perde vida
         printf("\nVoce pisou em um espinho e morreu! Voce ainda tem %d vidas...\n", initialHealth);
         Sleep(1500);
         if (initialHealth < 1)
-        {
-           system("cls");
+        { // Game Over
+            system("cls");
             printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Over!!!\n");
             system("pause");
-            main();
+            main(); // Reinicia o jogo
         }
     }
 
-    // Move o jogador
+    // Atualiza posição do jogador
     playerX = newX;
     playerY = newY;
 
-    // Verifica teletransporte
+    // Teletransporte
     if (map[playerY][playerX] == '>')
     {
-        // Restaura o símbolo do teletransporte na posição antiga
+        // Troca entre os dois pontos de teletransporte
         if (playerX == teleportAX && playerY == teleportAY)
         {
             map[playerY][playerX] = '>';
@@ -242,13 +242,14 @@ void movePlayer(char map[40][40], char input, int width, int height)
     }
 }
 
+// Monstro com movimento aleatório
 void monsterDrunk(char map[40][40], int width, int height)
 {
-    static char underMonster1 = ' '; // persiste entre chamadas
+    static char underMonster1 = ' '; // Mantém o estado do tile sob o monstro
     int newX = monster1X, newY = monster1Y;
-    int mov;
-    mov = rand() % 4;
+    int mov = rand() % 4; // Direção aleatória (0-3)
 
+    // Atualiza coordenadas
     if (mov == 0)
         newY--;
     else if (mov == 1)
@@ -258,51 +259,50 @@ void monsterDrunk(char map[40][40], int width, int height)
     else if (mov == 3)
         newX++;
 
+    // Verifica colisões
     char nextTile = map[newY][newX];
-
     if (nextTile == '*' || nextTile == 'P' || nextTile == '@' || nextTile == 'D' || nextTile == '=')
         return;
 
-    // Restaura o que estava na posição anterior
+    // Restaura o tile anterior
     map[monster1Y][monster1X] = underMonster1;
+    underMonster1 = map[newY][newX]; // Salva o novo tile
 
-    // Salva o que o monstro vai pisar
-    underMonster1 = map[newY][newX];
-
-    // Move o monstro
+    // Atualiza posição do monstro
     monster1X = newX;
     monster1Y = newY;
+    map[monster1Y][monster1X] = 'X'; // Desenha o monstro
 
-    // Desenha o monstro
-    map[monster1Y][monster1X] = 'X';
-
-    // Verifica colisão com o jogador
-   if (monster1X == playerX && monster1Y == playerY)
+    // Colisão com o jogador
+    if (monster1X == playerX && monster1Y == playerY)
     {
         initialHealth--;
-        printf("\nVocê foi pego pelo monstro!Voce ainda tem %d vidas...\n", initialHealth);
+        printf("\nVocê foi pego pelo monstro! Voce ainda tem %d vidas...\n", initialHealth);
         Sleep(1500);
         if (initialHealth < 1)
-        {
-           system("cls");
+        { // Game Over
+            system("cls");
             printf("\n\n\n\t\t\t\t\t\t\t\t\t\t\t\t  Game Over!!!\n");
             system("pause");
             main();
-        } else { 
+        }
+        else
+        { // Reinicia a fase
             if (currentLevel == 1)
-            levelOne();
+                levelOne();
             else if (currentLevel == 2)
-            levelTwo();
+                levelTwo();
             else if (currentLevel == 3)
-            levelThree();
-            
+                levelThree();
         }
     }
 }
 
+// Monstro que persegue o jogador
 void monsterIq(char map[40][40], int width, int height)
 {
     int dx = 0, dy = 0;
+    // Calcula direção em relação ao jogador
     if (monster2X < playerX)
         dx = 1;
     else if (monster2X > playerX)
@@ -314,20 +314,25 @@ void monsterIq(char map[40][40], int width, int height)
 
     int newX = monster2X + dx;
     int newY = monster2Y + dy;
+
+    // Verifica colisões
     char nextTile = map[newY][newX];
     if (nextTile == '*' || nextTile == 'P' || nextTile == '@' || nextTile == 'D' || nextTile == '=')
         return;
 
+    // Atualiza posição do monstro
     map[monster2Y][monster2X] = underMonster2;
     underMonster2 = map[newY][newX];
     monster2X = newX;
     monster2Y = newY;
-    map[monster2Y][monster2X] = 'V';
+    map[monster2Y][monster2X] = 'V'; // Desenha o monstro
 
+    // Colisão com o jogador
     if (monster2X == playerX && monster2Y == playerY)
     {
         printf("\nVocê foi pego pelo monstro inteligente!\n");
         Sleep(1500);
+        // Reinicia a fase
         if (currentLevel == 1)
             levelOne();
         else if (currentLevel == 2)
@@ -605,14 +610,14 @@ void levelThree()
         "*                                     *",
         "*                                     *",
         "*&                                    *",
-        "***************************************"
-    };
+        "***************************************"};
 
     int width = 40, height = 40;
     char inputKey;
 
     // Copia o layout para o mapa real
-   for (int i = 0; i < height; i++)
+    for (int i = 0; i < height; i++)
+    {
         for (int j = 0; j < width; j++)
         {
             map[i][j] = layout[i][j];
@@ -645,39 +650,35 @@ void levelThree()
                 }
             }
         }
-
+    }
 
     while (1)
-{
-    // 1. Restaura o teletransporte ou espaço onde o jogador estava
-    if (playerX == teleportAX && playerY == teleportAY)
-        map[playerY][playerX] = '>';
-    else if (playerX == teleportBX && playerY == teleportBY)
-        map[playerY][playerX] = '>';
-    else
-        map[playerY][playerX] = ' ';
+    {
+        // Restaura o símbolo de teleporte se o jogador saiu dele
+        if ((playerX == teleportAX && playerY == teleportAY) || (playerX == teleportBX && playerY == teleportBY))
+            map[playerY][playerX] = '>';
+        else
+            map[playerY][playerX] = ' ';
 
-    // 2. Limpa monstros antigos
-    map[monster1Y][monster1X] = underMonster1;
-    map[monster2Y][monster2X] = underMonster2;
+        // Limpa os monstros das posições anteriores
+        map[monster1Y][monster1X] = ' ';
+        map[monster2Y][monster2X] = ' ';
 
-    // 3. Captura entrada
-    inputKey = getch();
+        // Pega entrada e move jogador
+        inputKey = getch();
+        movePlayer(map, inputKey, width, height);
 
-    // 4. Move jogador
-    movePlayer(map, inputKey, width, height);
+        // Atualiza monstros
+        monsterDrunk(map, width, height);
+        monsterIq(map, width, height);
 
-    // 5. Move monstros
-    monsterDrunk(map, width, height);
-    monsterIq(map, width, height);
+        // Redesenha o jogador e monstros nas novas posições
+        map[playerY][playerX] = '&';
+        map[monster1Y][monster1X] = 'X';
+        map[monster2Y][monster2X] = 'V';
 
-    // 6. Desenha entidades nas novas posições
-    map[playerY][playerX] = '&';
-    map[monster1Y][monster1X] = 'X';
-    map[monster2Y][monster2X] = 'V';
-
-    // 7. Mostra o mapa
-    system("cls");
-    drawMap(map, width, height);
-}
+        // Desenha o mapa
+        system("cls");
+        drawMap(map, width, height);
+    }
 }
