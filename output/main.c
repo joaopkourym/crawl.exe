@@ -53,7 +53,7 @@ int main()
         {
         case 1:               // Iniciar jogo
             currentLevel = 0; // Reinicia para a vila
-            levelThree();     // Carrega a fase da vila
+            villageLevel();     // Carrega a fase da vila
             break;
         case 2: // Mostrar controles
             showTitle();
